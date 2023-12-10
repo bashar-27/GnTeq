@@ -6,11 +6,13 @@ import { Table } from "react-bootstrap";
 import EmployeeEdit from "./EmployeeEdit.js";
 import { IconButton, Switch } from "@mui/material";
 import axios from 'axios';
+
 import { MdOutlineEdit, MdDelete } from "react-icons/md";
 
 function EmployeePanel() {
   // State to store the list of employees and manage modal visibility
   const [employees, setEmployees] = useState([]);
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState({});
 
