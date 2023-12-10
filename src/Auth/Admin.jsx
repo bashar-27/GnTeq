@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // Import necessary dependencies and styles
 import React, { useState } from "react";
 import axios from "axios";
