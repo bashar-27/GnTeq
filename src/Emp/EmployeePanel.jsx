@@ -1,4 +1,6 @@
-// EmployeePanel.js
+/* eslint-disable */
+
+//All Employess is Here
 import React, { useState, useEffect } from "react";
 import { Table } from "react-bootstrap";
 import EmployeeEdit from "./EmployeeEdit.js";
@@ -111,7 +113,7 @@ function EmployeePanel() {
           ))}
         </tbody>
       </Table>
-      {/* EmployeeEdit modal component */}
+      {/* EmployeeEdit modal component Here*/}
       <EmployeeEdit
         employee={selectedEmployee}
         Id={selectedEmployee.id}
