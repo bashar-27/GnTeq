@@ -8,52 +8,49 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
-
 namespace GnTeq
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            // Create a web application builder
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
 
+            // Configure controllers and CORS policies
             builder.Services.AddControllers();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowLocalhost3000",
-                    builder => builder.WithOrigins("http://localhost:3000") // Replace with your Next.js app's URL
+                    builder => builder.WithOrigins("http://localhost:3000")
                                      .AllowAnyHeader()
                                      .AllowAnyMethod());
             });
 
+            // Configure JSON serialization options
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-   );
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             builder.Services.AddControllers()
-           .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+                );
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Configure Swagger/OpenAPI documentation
             string? connString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<GnTeqDbContext>
-               (options => options.UseSqlServer(connString));
-            builder.Services.AddIdentity<AppUser, IdentityRole>
-              (options =>
-              {
-                  options.User.RequireUniqueEmail = true;
-              }).AddEntityFrameworkStores<GnTeqDbContext>();
-
-
-           // builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddDbContext<GnTeqDbContext>(options => options.UseSqlServer(connString));
+            builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<GnTeqDbContext>();
 
             builder.Services.AddTransient<IAdmin, IdentityAdminService>();
-            builder.Services.AddTransient<IEmployee,EmployeeService>();
+            builder.Services.AddTransient<IEmployee, EmployeeService>();
             builder.Services.AddScoped<JWTTokenService>();
 
+            // Configure JWT authentication
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,17 +58,18 @@ namespace GnTeq
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-
                 options.TokenValidationParameters = JWTTokenService.GetValidationPerameters(builder.Configuration);
             });
 
-
+            // Configure authorization policies based on claims
             builder.Services.AddAuthorization(options => {
                 options.AddPolicy("create", policy => policy.RequireClaim("persmissions", "create"));
                 options.AddPolicy("update", policy => policy.RequireClaim("persmissions", "update"));
                 options.AddPolicy("delete", policy => policy.RequireClaim("persmissions", "delete"));
                 options.AddPolicy("read", policy => policy.RequireClaim("persmissions", "read"));
             });
+
+            // Configure Swagger documentation
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo()
@@ -89,26 +87,32 @@ namespace GnTeq
                     Description = "add the JWT TOKEN"
                 });
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
-     {{
-         new OpenApiSecurityScheme {
-         Reference=
-         new OpenApiReference{
-             Type=ReferenceType.SecurityScheme,
-             Id= "Bearer"
-     }
-     },
-     new string[]{ } }
-     });
+                {{
+                    new OpenApiSecurityScheme {
+                        Reference = new OpenApiReference{
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[]{ }
+                }});
             });
 
-   
+            // Build the application
             var app = builder.Build();
 
-          app.UseCors(options=>options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            // Configure middleware components
+
+            // Enable CORS
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+            // Configure routing, HTTPS redirection, authentication, and authorization
             app.UseRouting();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Configure Swagger UI and Swagger JSON endpoint
             app.UseSwagger(options =>
             {
                 options.RouteTemplate = "/swagger/{documentName}/swagger.json";
@@ -120,8 +124,10 @@ namespace GnTeq
                 options.RoutePrefix = "swagger";
             });
 
+            // Map controllers to handle incoming HTTP requests
             app.MapControllers();
 
+            // Run the application
             app.Run();
         }
     }

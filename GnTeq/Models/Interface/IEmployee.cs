@@ -7,6 +7,7 @@
         public Task<Employee> CreateEmployee(Employee employee);
         public Task<Employee> UpdateEmployee(int employeeId,Employee employee);
         public Task<Employee> DeleteEmployee(int employeeId);
+        public Task<List<Employee>> GetActiveEmployees();
 
     }
 }

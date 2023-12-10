@@ -9,74 +9,75 @@ using GnTeq.Data;
 using GnTeq.Models;
 using GnTeq.Models.Interface;
 using Microsoft.AspNetCore.Authorization;
+using GnTeq.Models.Services;
 
-namespace GnTeq.Controllers
+[Route("api/[controller]")]
+[ApiController]
+// [Authorize(Roles = "Administrator")]
+public class EmployeeController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-   // [Authorize(Roles = "Administrator")]
-    public class EmployeeController : ControllerBase
+    private readonly IEmployee _employee;
+
+    // Constructor injection of IEmployee service
+    public EmployeeController(IEmployee employee)
     {
-       
-        private readonly IEmployee _employee;
+        _employee = employee;
+    }
 
-        public EmployeeController(IEmployee employee)
+    // GET: api/Employee/GetEmployees
+    [HttpGet]
+    [Route("GetEmployees")]
+    //[Authorize(Roles = "Administrator")] // Requires Administrator role for access
+    public async Task<ActionResult<IEnumerable<Employee>>> GetUsers()
+    {
+        return await _employee.GetAllEmployee();
+    }
+
+    // GET: api/Employee/GetActiveEmployees
+    [HttpGet]
+    [Route("GetActiveEmployees")]
+    public async Task<ActionResult<IEnumerable<Employee>>> GetActiveUser()
+    {
+        return await _employee.GetActiveEmployees();
+    }
+
+    // GET: api/Employee/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Employee>> GetUser(int id)
+    {
+        return await _employee.GetEmployeeById(id);
+    }
+
+    // PUT: api/Employee/{id}
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutUser(int id, Employee user)
+    {
+        if (id != user.Id)
         {
-          
-            _employee = employee;
+            return BadRequest();
         }
 
-        // GET: api/Users
-        [HttpGet]
-        [Route("GetEmployees")]
-        //[Authorize(Roles = "Administrator")]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetUsers()
-        {
-            return await _employee.GetAllEmployee();
-        }
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetUser(int id)
-        {
-         return await _employee.GetEmployeeById(id);
-        }
+        return Ok(await _employee.UpdateEmployee(id, user));
+    }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, Employee user)
+    // POST: api/Employee
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPost]
+    public async Task<ActionResult<Employee>> PostUser(Employee user)
+    {
+        return await _employee.CreateEmployee(user);
+    }
+
+    // DELETE: api/Employee/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var employee = await _employee.GetEmployeeById(id);
+        if (id != employee.Id)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
-          
-            return Ok(await _employee.UpdateEmployee(id , user));
+            return BadRequest();
         }
-
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Employee>> PostUser(Employee user)
-        {
-         return await _employee.CreateEmployee(user);
-        }
-
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-           var employee = await _employee.GetEmployeeById(id);
-            if (id != employee.Id) {
-                return BadRequest();
-            }
-            return Ok(await _employee.DeleteEmployee(id));
-        }
-
-        //private bool UserExists(int id)
-        //{
-        //    return (_context.Employees?.Any(e => e.Id == id)).GetValueOrDefault();
-        //}
+        return Ok(await _employee.DeleteEmployee(id));
     }
 }

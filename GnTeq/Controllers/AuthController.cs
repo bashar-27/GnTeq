@@ -24,24 +24,6 @@ namespace GnTeq.Controllers
             _signInManager = signInManager;
         }
 
-        /// <summary>
-        /// Register a new user.
-        /// </summary>
-        /// <param name="Data">Registration data for the new user.</param>
-        //[HttpPost("Register")]
-        //public async Task<ActionResult<UserDTO>> Register(RegisterUserDTO Data)
-        //{
-        //    var user = await _user.Register(Data, this.ModelState, User);
-        //    if (ModelState.IsValid)
-        //    {
-        //        if (user != null)
-        //            return user;
-
-        //        else
-        //            return NotFound();
-        //    }
-        //    return BadRequest(new ValidationProblemDetails(ModelState));
-        //}
 
         /// <summary>
         /// Authenticate a user and perform login.

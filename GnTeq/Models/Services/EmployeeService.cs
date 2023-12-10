@@ -77,5 +77,11 @@ namespace GnTeq.Models.Services
             return currentEmployee;
 
         }
+        public async Task<List<Employee>> GetActiveEmployees()
+        {
+            return await _context.Employees
+                .Where(e => e.Status == true)
+                .ToListAsync();
+        }
     }
 }
